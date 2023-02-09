@@ -1,0 +1,715 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/rab.png">
+  <link rel="icon" href="/img/rab.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="FFreestanding">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="简介本文根据慕课资料进行粗略学习操作系统的知识，选择性地写一下lab练习ucore课程文档课程地址其他大佬的lab答案地址推荐博客1推荐博客2建议先阅读《编码：隐匿在计算机软硬件背后的语言》和《X86汇编语言-从实模式到保护模式》 第一条指令CPU加电后会进行初始化，然后在内存读第一条指令。内存有一部分是ROM、一部分是RAM。断电后RAM信息会消失，但是ROM内容一直都在。读的第一个指令是CS:">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ucore概述">
+<meta property="og:url" content="https://ffreestanding.github.io/posts/1de4270e.html">
+<meta property="og:site_name" content="FFreestanding">
+<meta property="og:description" content="简介本文根据慕课资料进行粗略学习操作系统的知识，选择性地写一下lab练习ucore课程文档课程地址其他大佬的lab答案地址推荐博客1推荐博客2建议先阅读《编码：隐匿在计算机软硬件背后的语言》和《X86汇编语言-从实模式到保护模式》 第一条指令CPU加电后会进行初始化，然后在内存读第一条指令。内存有一部分是ROM、一部分是RAM。断电后RAM信息会消失，但是ROM内容一直都在。读的第一个指令是CS:">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/4feec1f1ab2f4d50bf94d10bb25a6110.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/87864d9b7b3b44d99199ee9c44c55dcb.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/ed541f0d11144b61ba911180641dac72.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/81cebcfdbfe84b80b0cf8295a37b9927.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b91d81cdbc9641a9a728f770fe6c1981.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/471f1303cc5b46fbbd3c9391a6e951a5.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/0adc5bba102a4ca8885d603a430cee31.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/165a51e908e34e79b688c84491497d7d.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/dd5928db1180447aaf7c91847ca0c5a6.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/25a3a03edb5549ae87dc0f578b59ad07.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/60719c9e7e554e68b0e84b5b4747b216.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/353cbea99fd544af9514e45d00373a6e.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/92196813b57f468dbd58e006d2b6fe78.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/bf8a38b4b6a1407d94a75d9308db6aa7.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/42188b70e59e43aba11cee793858692f.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/db0de8a27d0140a4a884eb5f9acfef8e.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/40778bb0381744e4b413bda658a3cf3c.png">
+<meta property="article:published_time" content="2022-07-19T22:49:07.000Z">
+<meta property="article:modified_time" content="2022-10-22T01:38:48.000Z">
+<meta property="article:author" content="FFreestanding">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/4feec1f1ab2f4d50bf94d10bb25a6110.png">
+  
+  
+  
+  <title>ucore概述 - FFreestanding</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ffreestanding.github.io","root":"/","version":"1.9.1","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 60vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>HAVE FUN !!!</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/222.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle">ucore概述</span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-07-20 06:49" pubdate>
+          2022年7月20日 早上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          72 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">ucore概述</h1>
+            
+            <div class="markdown-body">
+              
+              <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>本文根据慕课资料进行粗略学习操作系统的知识，选择性地写一下lab练习<br><a target="_blank" rel="noopener" href="https://chyyuu.gitbooks.io/ucore_os_docs/content/">ucore课程文档</a><br><a target="_blank" rel="noopener" href="https://www.xuetangx.com/course/THU08091000267/10322317">课程地址</a><br><a target="_blank" rel="noopener" href="https://github.com/1399852153/ucore_os_lab">其他大佬的lab答案地址</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/xiaoxiongcanguan/p/13714587.html">推荐博客1</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/2f95d38afa1d">推荐博客2</a><br>建议先阅读《编码：隐匿在计算机软硬件背后的语言》和《X86汇编语言-从实模式到保护模式》</p>
+<h2 id="第一条指令"><a href="#第一条指令" class="headerlink" title="第一条指令"></a>第一条指令</h2><p>CPU加电后会进行初始化，然后在内存读第一条指令。内存有一部分是ROM、一部分是RAM。断电后RAM信息会消失，但是ROM内容一直都在。<br>读的第一个指令是CS:IP指向的地址（值应该是默认的），刚加电的CPU处于16位实模式下，寻址空间大小为2的20次方（1MB），CS、IP都是16位的。CS*16+IP（0xFFFF0）是第一条指令的地址，同时CS:IP要在2的20次方的寻址空间内。第一条指令在最底下的1MB空间内。这第一条指令及其跟着的指令就是BIOS，它要提供一些服务，然后CPU才能访问磁盘设备。</p>
+<h2 id="BIOS"><a href="#BIOS" class="headerlink" title="BIOS"></a>BIOS</h2><p>BIOS从磁盘读引导扇区（512字节）里的加载程序，将其写到内存0x7c00，然后CS:IP跳到那里去执行加载程序（bootloader）。<br>详细一点说，BIOS只能在实模式下运行，它先是检查硬件，进行设备初始化。修电脑时，显示器不工作，可以猜测内存有问题。因为BIOS先检查到内存有问题，后面它就不用检查了，也不启动系统了。然后检查插入的U盘、磁盘什么的。检查产生的信息成为BIOS数据。虽然ROM数据不会消失，但是因为每次插入的硬件不一样，所以BIOS会改这些数据。最后读我们磁盘的第一个扇区。BIOS先读磁盘的主引导扇区（512字节）。因为这个东西提供的信息可以帮我们选择启动磁盘里的哪个操作系统。根据主引导扇区的信息来选择并读取活动分区（分区引导扇区）。先执行分区引导扇区的跳转指令，跳转到启动代码启动到加载程序。</p>
+<h2 id="加载程序"><a href="#加载程序" class="headerlink" title="加载程序"></a>加载程序</h2><p>加载程序把磁盘的ucore操作系统数据和代码加载到内存，再跳到ucore起始地址。把控制权交给操作系统。<br>详细地说，加载程序会先从文件系统中读取启动配置信息，依据这些信息决定怎么加载内核，这个地方如果我们可以弄一个选项在显示屏（启动菜单），可以改参数就很好。最后跳到内核。</p>
+<p><img src="https://img-blog.csdnimg.cn/4feec1f1ab2f4d50bf94d10bb25a6110.png" srcset="/img/loading.gif" lazyload>ucore结构简单，应该是直接到加载程序。</p>
+<h2 id="不够详细"><a href="#不够详细" class="headerlink" title="不够详细"></a>不够详细</h2><p>知道这些还是很粗糙，如果写实际程序，还要根据CPU手册、BIOS规范（从哪里读第一条，上文是0xFFFF0）。所以自己写操作系统还是要查很多资料的。</p>
+<h2 id="系统启动规范"><a href="#系统启动规范" class="headerlink" title="系统启动规范"></a>系统启动规范</h2><h3 id="BIOS-1"><a href="#BIOS-1" class="headerlink" title="BIOS"></a>BIOS</h3><p>这里的主引导扇区的硬盘分区表只有四个分区信息，每个分区信息16字节（BIOS-MBR）。BIOS-GPT则支持超过四个分区。PXE是网络启动，从服务器下载资料到磁盘来启动，此时BIOS要有网络下载功能，BIOS变复杂了。前面说的是在本地磁盘启动。</p>
+<h3 id="UEFI"><a href="#UEFI" class="headerlink" title="UEFI"></a>UEFI</h3><p>在所有平台一致地启动操作系统。启动磁盘的任何系统。为了安全，检查引导记录是否可信。只读取满足签名的引导记录。</p>
+<h3 id="查资料"><a href="#查资料" class="headerlink" title="查资料"></a>查资料</h3><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/81960137">知乎BIOS与UEFI区别</a></p>
+<h2 id="加载程序干什么"><a href="#加载程序干什么" class="headerlink" title="加载程序干什么"></a>加载程序干什么</h2><p>加载程序（bootloader）先定义全局描述符表，然后让CPU从实模式进入保护模式，最后加载内核文件。</p>
+<h2 id="定义全局描述符表"><a href="#定义全局描述符表" class="headerlink" title="定义全局描述符表"></a>定义全局描述符表</h2><blockquote>
+<p>我们知道，为了让程序在内存中能自由浮动而又不影响它的正常执行，处理器将内存划分成逻辑上的段，并在指令中使用段内偏移地址。在保护模式下，对内存的访问仍然使用段地址和偏移地址，但是，在每个段能够访问之前，必须先进行登记。<br>《X86汇编语言-从实模式到保护模式》</p>
+</blockquote>
+<p>每个段由8字节的段描述符描述，描述表存放描述符。<br>最主要的描述表是全局描述表（Global Descriptor Table，GDT）。还有一个是局部描述表。<br>CPU有一个48位全局描述表寄存器（GDTR）。它分为32位的线性地址和16位的边界。GDTR 的线性地址部分保存的是全局描述符表在内存中的起始线性地址。边界保存的是全局描述表的边界，其在数值上等于表的大小（总字节数）减一。</p>
+<p><img src="https://img-blog.csdnimg.cn/87864d9b7b3b44d99199ee9c44c55dcb.png" srcset="/img/loading.gif" lazyload></p>
+<p>GDT最大大小是16位（216字节），由于在实模式下只能访问1MB 的内存，所以GDT 通常都定义在1MB 以下的内存范围中。</p>
+<h2 id="加载程序源代码分析"><a href="#加载程序源代码分析" class="headerlink" title="加载程序源代码分析"></a>加载程序源代码分析</h2><h3 id="bootasm-S"><a href="#bootasm-S" class="headerlink" title="bootasm.S"></a>bootasm.S</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;asm.h&gt;</span></span><br><br>.<span class="hljs-built_in">set</span> PROT_MODE_CSEG,        <span class="hljs-number">0x8</span>                     # 代码段<br>.<span class="hljs-built_in">set</span> PROT_MODE_DSEG,        <span class="hljs-number">0x10</span>                    # 数据段<br>.<span class="hljs-built_in">set</span> CR0_PE_ON,             <span class="hljs-number">0x1</span>                     # 保护模式标志<br><br># BIOS根据引导扇区加载bootloader到内存 然后从<span class="hljs-number">0x7c00</span>开始执行<br>.globl start                                        # .globl表示整个程序入口<br>start:<br>.code16                                             # 以<span class="hljs-number">16</span>位（实模式）执行<br>    cli                                             # 禁止中断发生<br>    cld                                             # 使方向标志位为<span class="hljs-number">0</span> 程序往地址增加方向执行<br><br>    xorw %ax, %ax                                   <span class="hljs-meta"># ax清零</span><br>    movw %ax, %ds                                   <span class="hljs-meta"># ds清零</span><br>    movw %ax, %es                                   <span class="hljs-meta"># es清零</span><br>    movw %ax, %ss                                   <span class="hljs-meta"># ss清零</span><br><br>    # 看官方文档 https:<span class="hljs-comment">//chyyuu.gitbooks.io/ucore_os_docs/content/lab1/lab1_appendix_a20.html</span><br>    # 再看 《X86汇编语言 从实模式到保护模式》 <span class="hljs-number">11.5</span> 关于第<span class="hljs-number">21</span>条地址线A20的问题<br>    # 为了进入<span class="hljs-number">32</span>位保护模式 必须先开启A20 大概知道一下 我感觉源代码也没有完全按文档来<br><br>seta20<span class="hljs-number">.1</span>:<br>    inb $<span class="hljs-number">0x64</span>, %al                                  # 读<span class="hljs-number">64</span>h端口获得StatusRegister<br>    testb $<span class="hljs-number">0x2</span>, %al                                 # 如果StatusRegister从低到高第<span class="hljs-number">2</span>位为<span class="hljs-number">0</span> <br>                                                    # 说明无输入 可以进入保护模式<br>    jnz seta20<span class="hljs-number">.1</span>                                    # 如果al低<span class="hljs-number">2</span>位为<span class="hljs-number">0</span> 则ZF=<span class="hljs-number">0</span> 则不跳转 说明低<span class="hljs-number">2</span>位为<span class="hljs-number">0</span><br><br>    movb $<span class="hljs-number">0xd1</span>, %al                                 # 向<span class="hljs-number">64</span>h发送<span class="hljs-number">0</span>d1h命令<br>    outb %al, $<span class="hljs-number">0x64</span><br><br>seta20<span class="hljs-number">.2</span>:<br>    inb $<span class="hljs-number">0x64</span>, %al<br>    testb $<span class="hljs-number">0x2</span>, %al<br>    jnz seta20<span class="hljs-number">.2</span><br><br>    movb $<span class="hljs-number">0xdf</span>, %al<br>    outb %al, $<span class="hljs-number">0x60</span><br><br>    # 设置GDT<br>    lgdt gdtdesc<br>    <br>    # 修改CRO寄存器中的保护模式允许位 进入保护模式<br>    movl %cr0, %eax<br>    orl $CR0_PE_ON, %eax                            # 与<span class="hljs-number">0x1</span>进行或运算<br>    movl %eax, %cr0                                 # cr0设置为<span class="hljs-number">1</span><br><br>    ljmp $PROT_MODE_CSEG, $protcseg                 # 以PROT_MODE_CSEG为段地址，protcseg为段内偏移地址<br><br>.code32                                             # 以<span class="hljs-number">32</span>位（保护模式）执行<br>protcseg:<br>    # 设置数据段<br>    movw $PROT_MODE_DSEG, %ax<br>    movw %ax, %ds<br>    movw %ax, %es<br>    movw %ax, %fs<br>    movw %ax, %gs<br>    movw %ax, %ss<br><br>    # Set up the <span class="hljs-built_in">stack</span> pointer and call into C. The <span class="hljs-built_in">stack</span> region is from <span class="hljs-number">0</span>--start(<span class="hljs-number">0x7c00</span>)<br>    movl $<span class="hljs-number">0x0</span>, %ebp<br>    movl $start, %esp<br>    call bootmain                                   # 调用bootmain<br><br>    # 如果bootmain返回了 继续循环<br>spin:<br>    jmp spin<br><br># Bootstrap GDT<br>.p2align <span class="hljs-number">2</span>                                          # <span class="hljs-number">4</span>比特对齐 不知道啥意思<br>    # <span class="hljs-number">32</span>位的处理器具有<span class="hljs-number">32</span>根地址线 可以访问的地址范围是<span class="hljs-number">0x00000000</span>到<span class="hljs-number">0xffffffff</span><br>    # 所以 base为<span class="hljs-number">0x0</span> lim为<span class="hljs-number">0xffffffff</span><br>gdt:<br>    SEG_NULLASM                                     # 空段 <span class="hljs-number">8</span>字节<br>    SEG_ASM(STA_X|STA_R, <span class="hljs-number">0x0</span>, <span class="hljs-number">0xffffffff</span>)           # 代码段 <span class="hljs-number">8</span>字节 type为可读可执行段<br>    SEG_ASM(STA_W, <span class="hljs-number">0x0</span>, <span class="hljs-number">0xffffffff</span>)                 # 数据段 <span class="hljs-number">8</span>字节 type为只写段<br><br># GDT创建<br>gdtdesc:<br>    .word <span class="hljs-number">0x17</span>                                      # 边界（表的总字节数减一）<br>                                                    # <span class="hljs-number">3</span>*<span class="hljs-number">8</span><span class="hljs-number">-1</span>=<span class="hljs-number">23</span>=<span class="hljs-number">0x17</span>字节 用一个字的空间储存<br>    .<span class="hljs-type">long</span> gdt                                       # 线性基地址（GDT首地址）<br><br></code></pre></td></tr></table></figure>
+
+<p>asm.h里面是实现如何创建GDT，不清楚原理</p>
+<h2 id="lab1"><a href="#lab1" class="headerlink" title="lab1"></a>lab1</h2><h3 id="练习2：使用qemu执行并调试lab1中的软件"><a href="#练习2：使用qemu执行并调试lab1中的软件" class="headerlink" title="练习2：使用qemu执行并调试lab1中的软件"></a>练习2：使用qemu执行并调试lab1中的软件</h3><p>下载上面的lab答案，进入lab1_result目录，执行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">make lab1-mon<br></code></pre></td></tr></table></figure>
+
+<p>会出现下面三个窗口<br><img src="https://img-blog.csdnimg.cn/ed541f0d11144b61ba911180641dac72.png" srcset="/img/loading.gif" lazyload><br>项目自动帮我们在0x7c00打了断点<br>我的gdb加了pwndbg插件，可以看见这个0x7c00和后面的指令<br><img src="https://img-blog.csdnimg.cn/81cebcfdbfe84b80b0cf8295a37b9927.png" srcset="/img/loading.gif" lazyload><br>一直输入命令<code>n</code>进行调试<br><img src="https://img-blog.csdnimg.cn/b91d81cdbc9641a9a728f770fe6c1981.png" srcset="/img/loading.gif" lazyload><br>当执行完<code>call kern_init</code>时qemu屏幕有新的输出<br><img src="https://img-blog.csdnimg.cn/471f1303cc5b46fbbd3c9391a6e951a5.png" srcset="/img/loading.gif" lazyload><br>这个过程是先执行bootasm.S<br>bootasm.S会调用bootmain.c中的bootmain()<br>bootmain()会调用kern&#x2F;init&#x2F;init.c中的kern_init()<br>大佬的答案中对源码有注释</p>
+<h3 id="练习5：实现函数调用堆栈跟踪函数-（需要编程）"><a href="#练习5：实现函数调用堆栈跟踪函数-（需要编程）" class="headerlink" title="练习5：实现函数调用堆栈跟踪函数 （需要编程）"></a>练习5：实现函数调用堆栈跟踪函数 （需要编程）</h3><p>我们要实现kern&#x2F;debug&#x2F;kdebug.c里面的print_stackframe()<br>堆栈跟踪函数就是把寄存器信息打印一下</p>
+<blockquote>
+<p>由于显示完整的栈结构需要解析内核文件中的调试符号，较为复杂和繁琐。代码中有一些辅助函数可以使用。例如可以通过调用print_debuginfo函数完成查找对应函数名并打印至屏幕的功能。具体可以参见kdebug.c代码中的注释<br>《ucore_os_docs》</p>
+</blockquote>
+<p>那就很方便了</p>
+<h2 id="地址空间-amp-地址生成"><a href="#地址空间-amp-地址生成" class="headerlink" title="地址空间&amp;地址生成"></a>地址空间&amp;地址生成</h2><h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><p>物理地址就是总线看见的地址，逻辑地址是进程看到的地址</p>
+<h3 id="逻辑地址生成"><a href="#逻辑地址生成" class="headerlink" title="逻辑地址生成"></a>逻辑地址生成</h3><p>程序源代码经过编译和汇编后得到预备的地址，再链接添加函数库地址，当加载到内存时会重定向地址。相当于加载之前是确定内部各个指令的相对位置，加载后再确认绝对位置。<br>上面是加载时生成，还有编译时生成、执行时生成</p>
+<h3 id="逻辑地址处理"><a href="#逻辑地址处理" class="headerlink" title="逻辑地址处理"></a>逻辑地址处理</h3><p>CPU如果见到一个指令的地址，CPU里面的MMU就把它翻译成物理地址，CPU就找这个地址并结合处理信号来处理。如果逻辑地址访问非法，产生异常。</p>
+<h2 id="连续内存分配"><a href="#连续内存分配" class="headerlink" title="连续内存分配"></a>连续内存分配</h2><p>为了方便，内存分配大小设计为2的整数次幂</p>
+<h3 id="内存碎片"><a href="#内存碎片" class="headerlink" title="内存碎片"></a>内存碎片</h3><p>不能利用的内存空间（太小了）</p>
+<h3 id="外部碎片和内部碎片"><a href="#外部碎片和内部碎片" class="headerlink" title="外部碎片和内部碎片"></a>外部碎片和内部碎片</h3><p><img src="https://img-blog.csdnimg.cn/0adc5bba102a4ca8885d603a430cee31.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="动态内存分配"><a href="#动态内存分配" class="headerlink" title="动态内存分配"></a>动态内存分配</h3><p>根据内存占用情况进行分配。方法有最先匹配、最佳匹配、最差匹配<br>空闲分区列表储存空闲分区<br>释放分区时合并临近地址的空闲内存分区，调整空闲分区列表</p>
+<h3 id="最先匹配"><a href="#最先匹配" class="headerlink" title="最先匹配"></a>最先匹配</h3><p>思路：需要分配内存时按从低到高顺序寻找第一个可以满足的空闲内存空间，空闲分区列表按地址顺序排序<br>优点：简单、在高地址空间有大块的空闲分区<br>缺点：外碎片多，导致寻找大块时要遍历更多次，寻找大块时较慢</p>
+<h3 id="最佳匹配"><a href="#最佳匹配" class="headerlink" title="最佳匹配"></a>最佳匹配</h3><p>思路：寻找满足需求中最小的内存分区，空闲分区列表按大小顺序排序（可以由小到大，都行）<br>优点：大部分分配的尺寸较小时效果好、避免大的空闲分区被拆分、可减小外部碎片大小、相对简单<br>缺点：内外部碎片更小，更加不能利用</p>
+<h3 id="最差匹配"><a href="#最差匹配" class="headerlink" title="最差匹配"></a>最差匹配</h3><p>思路：寻找满足需求中最大的内存分区，空闲分区列表按大小顺序排序（可以由大到小，都行）<br>优点：中等大小的分配较多时，效果最好，小碎片少<br>缺点：后续大内存分配难</p>
+<h2 id="碎片整理"><a href="#碎片整理" class="headerlink" title="碎片整理"></a>碎片整理</h2><p>下面是碎片整理的一些方法</p>
+<h3 id="紧凑"><a href="#紧凑" class="headerlink" title="紧凑"></a>紧凑</h3><p>把进程占用内存压到一起，不过需要指令内容的地址要变，也就是应用程序可以动态重定向。这个操作要在进程处于等待时进行。</p>
+<h3 id="分区对换"><a href="#分区对换" class="headerlink" title="分区对换"></a>分区对换</h3><p>进程处于等待时把它的数据放到外存</p>
+<h2 id="伙伴（伴侣）系统"><a href="#伙伴（伴侣）系统" class="headerlink" title="伙伴（伴侣）系统"></a>伙伴（伴侣）系统</h2><p>假设可分配分区大小为2的u次幂，需要分配内存空间为m。如果两倍m大于2的u次幂且m小于等于2的u次幂就分配，否则把2的u次幂分一半，继续跟m比。<br>合并时注意大小是2的整数次幂。</p>
+<h3 id="合并条件"><a href="#合并条件" class="headerlink" title="合并条件"></a>合并条件</h3><p>大小相同（2的i次幂）、地址相邻、起始地址较小的块的起始地址必须是2的i+1次幂的倍数</p>
+<p><img src="https://img-blog.csdnimg.cn/165a51e908e34e79b688c84491497d7d.png" srcset="/img/loading.gif" lazyload>如上图，B应该和C合并，不能和A合并。A起始地址可以把前面内存空间大小加起来得到，是256K（2的8次幂）。要求合并空间的起始地址必须是2的9次幂，所以不行。而B起始地址是2的9次幂，所以B和C合并。看上面的树状图，形象地说就是，合并地址要有相同根节点。其实这里可以用二叉树数据结构。</p>
+<h2 id="非连续内存分配"><a href="#非连续内存分配" class="headerlink" title="非连续内存分配"></a>非连续内存分配</h2><p>如果最大的连续内存都不够，可以继续非连续内存分配。段式分配的单位内存大，页式小。可以把段式和页式结合起来成为段页式。</p>
+<h3 id="非连续内存分配设计目标"><a href="#非连续内存分配设计目标" class="headerlink" title="非连续内存分配设计目标"></a>非连续内存分配设计目标</h3><p>提高内存利用效率和管理灵活性<br>允许一个程序的使用非连续的物理地址空间<br>允许共享代码与数据<br>支持动态加载和动态链接</p>
+<h2 id="段式储存管理"><a href="#段式储存管理" class="headerlink" title="段式储存管理"></a>段式储存管理</h2><h3 id="概念-1"><a href="#概念-1" class="headerlink" title="概念"></a>概念</h3><p><strong>段表示访问方式和存储数据等属性相同的一段地址空间</strong><br>进程的段空间由多个段组成：主代码段、子模块代码、公用库代码段、堆栈段（stack）、堆数据（heap）、初始化数据段、符号表等</p>
+<h3 id="段访问及实现"><a href="#段访问及实现" class="headerlink" title="段访问及实现"></a>段访问及实现</h3><p>段号（s）加段内偏移（addr）<br>CPU访问一个逻辑地址（逻辑地址由段号和偏移组成）时，用段号查进程的段表中的段描述符（基本内容是基址、长度）。段表由操作系统控制。MMU把长度和偏移做比较，检查越界。如果越界，产生异常。<br><img src="https://img-blog.csdnimg.cn/dd5928db1180447aaf7c91847ca0c5a6.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="页式储存管理"><a href="#页式储存管理" class="headerlink" title="页式储存管理"></a>页式储存管理</h2><h3 id="概念-2"><a href="#概念-2" class="headerlink" title="概念"></a>概念</h3><p>物理地址空间基本单位叫<strong>页帧</strong>（Frame），大小为2的n次方。虚拟地址空间基本单位叫<strong>页面</strong>（Page）</p>
+<h3 id="页帧"><a href="#页帧" class="headerlink" title="页帧"></a>页帧</h3><p>物理地址表示：帧号（f）和偏移量（o）<br>物理地址&#x3D;f$*2^S$+o<br><img src="https://img-blog.csdnimg.cn/25a3a03edb5549ae87dc0f578b59ad07.png" srcset="/img/loading.gif" lazyload></p>
+<p>如上图，F&#x3D;7，S&#x3D;9，f&#x3D;3，o&#x3D;3</p>
+<h3 id="页面"><a href="#页面" class="headerlink" title="页面"></a>页面</h3><p>逻辑空间地址被划分为大小相等的页<br>页内偏移等于帧内偏移<br>通常页号大小不等于帧号，因为页号经过转换后不一定对应相等的帧号<br>虚拟地址表示：页号（p）和偏移量（o）<br>虚拟地址&#x3D;p$*2^S$+o</p>
+<h3 id="通过页找到帧"><a href="#通过页找到帧" class="headerlink" title="通过页找到帧"></a>通过页找到帧</h3><p>CPU得到逻辑地址，用p到页表找对应的f，两者偏移一样。直接得到帧偏移量<br><img src="https://img-blog.csdnimg.cn/60719c9e7e554e68b0e84b5b4747b216.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="页表"><a href="#页表" class="headerlink" title="页表"></a>页表</h3><p>每个进程都有一个页表，每个页面对应一个页表项。页表随进程运行状态动态变化。页表基址寄存器（PTBR）可以告诉我们页表基址。PTBR的值是通过CR3寄存器获取的。</p>
+<h3 id="页表项组成"><a href="#页表项组成" class="headerlink" title="页表项组成"></a>页表项组成</h3><p>页表由帧号、页表项标志组成<br>页表项标志：存在位、修改位、引用位<br>存在位：一个逻辑页号是否存在一个物理帧与它相对应，如果有则为1<br>修改位：页面内容是否修改<br>引用位：页面是否有过被引用、被访问</p>
+<h3 id="页式储存管理优化"><a href="#页式储存管理优化" class="headerlink" title="页式储存管理优化"></a>页式储存管理优化</h3><p>缓存：把一次获取的页表项的后面几项缓存起来，可能下次用<br>间接访问：多级页表，把一个页表分多个，方便找</p>
+<h3 id="快表（TLB）和多级页表"><a href="#快表（TLB）和多级页表" class="headerlink" title="快表（TLB）和多级页表"></a>快表（TLB）和多级页表</h3><p>快表（TLB）：把近期访问过的页表<strong>项</strong>缓存到CPU里面<br>TLB由关联储存器实现，因为在CPU里面，所以快<br>多级页表：见下图，第一级页表基址在PTBR里储存<br><img src="https://img-blog.csdnimg.cn/353cbea99fd544af9514e45d00373a6e.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="反置页表"><a href="#反置页表" class="headerlink" title="反置页表"></a>反置页表</h3><p>如果页表级数过多，访问页表次数增加，很繁琐，所以有了反置页表。<br>反置页表是页表与物理地址相对应，所有进程共同使用一张页表</p>
+<h3 id="页寄存器"><a href="#页寄存器" class="headerlink" title="页寄存器"></a>页寄存器</h3><p>每个帧与一个页寄存器关联，寄存器内容包括：使用位、占用页号（逻辑页号p）、保护位（访问方式，比如：可读，可写）<br>优点：页表大小相对于物理内存很小、页表大小与逻辑地址空间大小无关<br>缺点：页表信息对调后，需要依据帧号可找页号、在页寄存器中搜索逻辑地址中的页号困难</p>
+<h3 id="页寄存器中的地址转换"><a href="#页寄存器中的地址转换" class="headerlink" title="页寄存器中的地址转换"></a>页寄存器中的地址转换</h3><p>对逻辑地址的p和进程ID（PID）的数字之和进行哈希算法，用哈希表映射，减少搜索访问，解决哈希冲突。检查页号和页表的PID跟请求的页号和页表的PID是否一样，其他步骤跟前面一样</p>
+<h3 id="反置页表的哈希冲突"><a href="#反置页表的哈希冲突" class="headerlink" title="反置页表的哈希冲突"></a>反置页表的哈希冲突</h3><p>用得到的哈希值H（即页表第H条）在页表查时发现对应的PID和页号跟哈希前不一样，没关系，页表还提供下一个PID和页号之和哈希值为H的地址</p>
+<p><img src="https://img-blog.csdnimg.cn/92196813b57f468dbd58e006d2b6fe78.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="段式存储管理基础"><a href="#段式存储管理基础" class="headerlink" title="段式存储管理基础"></a>段式存储管理基础</h3><p>逻辑地址由s（段号）、p（页号）、o（偏移）组成<br>物理地址由f（帧号）、o（偏移）<br>先根据s找段表的对应段表项，再根据p找页表中对应的页表项，最后根据o得到具体物理地址。<br>通过指向相同的页表基址，可以实现<strong>进程间的段共享</strong></p>
+<h2 id="实验二-物理内存管理"><a href="#实验二-物理内存管理" class="headerlink" title="实验二 物理内存管理"></a>实验二 物理内存管理</h2><h3 id="了解x86保护模式中的特权级"><a href="#了解x86保护模式中的特权级" class="headerlink" title="了解x86保护模式中的特权级"></a>了解x86保护模式中的特权级</h3><p>特权级范围是从0到3级<br>ucore和Linux都只有ring0级（内核级）和ring3级（用户级）</p>
+<h3 id="段选择子"><a href="#段选择子" class="headerlink" title="段选择子"></a>段选择子</h3><p>段选择子位于段寄存器里面<br><img src="https://img-blog.csdnimg.cn/bf8a38b4b6a1407d94a75d9308db6aa7.png" srcset="/img/loading.gif" lazyload></p>
+<p>上图的RPL（描述特权级大小）与数据段相关，后面讲的的CPL与代码段相关，与段描述符的DPL（描述段特权级是ring0还是其他什么）比较，RPL象征的权限大于大于DPL才能执行、访问或者中断。中断门（Interrupt Gate）、陷入门（Trap Gate）也有DPL。<br>段寄存器DS,ES,FS,GS里面有RPL<br>段寄存器CS,SS里面有CPL<br>访问门时：CPL&lt;&#x3D;门的DPL（也就是门特权级低）&amp;CPL&gt;&#x3D;段的DPL<br>为什么CPL&gt;&#x3D;段的DPL？这就体现了ring3应用程序访问ring0级服务的情况<br>访问段时：MAX（CPL,RPL）&lt;&#x3D;段的DPL</p>
+<h3 id="了解特权级切换过程"><a href="#了解特权级切换过程" class="headerlink" title="了解特权级切换过程"></a>了解特权级切换过程</h3><p>通过中断切换特权级<br>产生中断时，把当前状态保存在属于ring0的栈里面</p>
+<h3 id="ring0到ring3的切换"><a href="#ring0到ring3的切换" class="headerlink" title="ring0到ring3的切换"></a>ring0到ring3的切换</h3><p>把属于ring0的栈里面的CS的CPL改为3（ring3），SS的RPL改为3，EIP看情况改</p>
+<h3 id="ring3到ring0的切换"><a href="#ring3到ring0的切换" class="headerlink" title="ring3到ring0的切换"></a>ring3到ring0的切换</h3><p>把属于ring0的栈里面的CS的CPL改为0（ring0），CS指向地址也改，SS和ESP清除，不要ring3的栈了，EIP改</p>
+<h3 id="任务状态段（Task-State-Segment）"><a href="#任务状态段（Task-State-Segment）" class="headerlink" title="任务状态段（Task-State Segment）"></a>任务状态段（Task-State Segment）</h3><p>它保存了寄存器的特权信息，ring3到ring0的切换需要的新栈（SS、ESP在栈里面的信息已经清除）相关的寄存器设置就是根据TSS来的<br>TSS描述符（保存TSS地址等信息）也放在全局描述表里面<br>对于ucore，就利用TSS里面的SS、ESP信息<br>Task Register寄存器会缓存TSS地址信息，方便查找</p>
+<h3 id="了解段页表"><a href="#了解段页表" class="headerlink" title="了解段页表"></a>了解段页表</h3><h3 id="段寄存器"><a href="#段寄存器" class="headerlink" title="段寄存器"></a>段寄存器</h3><p>段寄存器一部分内容是index，作为一个索引来找到全局描述符表中的一个项（段描述符）<br>如果没有开启页基址，CS:IP等就是物理地址，但还是要通过段描述符来映射</p>
+<h3 id="段选择子中的隐藏部"><a href="#段选择子中的隐藏部" class="headerlink" title="段选择子中的隐藏部"></a>段选择子中的隐藏部</h3><p>GDT因为占空间大所以放在内存里面，硬件会把GDT的段描述符的关键信息放在段寄存器的隐藏部分（用来缓存）</p>
+<h3 id="映射"><a href="#映射" class="headerlink" title="映射"></a>映射</h3><p>虚拟地址比线性地址（逻辑地址到物理地址变换之间的中间层）大0xC0000000（7个0）<br>选择页机制为主</p>
+<h3 id="了解UCORE建立段-x2F-页表"><a href="#了解UCORE建立段-x2F-页表" class="headerlink" title="了解UCORE建立段&#x2F;页表"></a>了解UCORE建立段&#x2F;页表</h3><p>线性地址由32位组成，0到11位是offset，12到21是table，22到31是directory（页目录）。根据directory从page directory（页目录表）找到对应的项PDE，比如directory就表示查表的第directory项，后面也是一样。PDE记录的是二级页表里面的起始地址。根据table从page table找到对应的项PTE（page table entry），PTE存的是线性地址对应的页的起始地址。PTE左移三位加上offset作为最终物理地址。<br>CR3寄存器保存页目录表的起始地址。</p>
+<h3 id="页表或者页目录表包含哪些信息"><a href="#页表或者页目录表包含哪些信息" class="headerlink" title="页表或者页目录表包含哪些信息"></a>页表或者页目录表包含哪些信息</h3><p>除了关注页表或者页目录表中的基址信息，还有关注它们的属性。<br>比如是否可读，是否ring3级别能访问等。</p>
+<h3 id="使能页机制"><a href="#使能页机制" class="headerlink" title="使能页机制"></a>使能页机制</h3><p>CR0第0位（PE）如果置1，则enable保护模式，第31位（PG）如果置1，就代表使能了页机制</p>
+<h2 id="虚拟存储概念"><a href="#虚拟存储概念" class="headerlink" title="虚拟存储概念"></a>虚拟存储概念</h2><h3 id="存储器速度排行"><a href="#存储器速度排行" class="headerlink" title="存储器速度排行"></a>存储器速度排行</h3><p><img src="https://img-blog.csdnimg.cn/42188b70e59e43aba11cee793858692f.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="虚拟储存需求"><a href="#虚拟储存需求" class="headerlink" title="虚拟储存需求"></a>虚拟储存需求</h3><p>内存空间不够时，有两种方法<br>覆盖：应用程序<strong>手动</strong>把需要的指令和数据分时间段在内存中保存和清除<br>交换：操作系统<strong>自动</strong>把暂时不能执行的程序保存到外存中<br>虚拟储存：在有限容量的内存中，以页为单位<strong>自动</strong>装入更多更大的程序</p>
+<h3 id="覆盖技术"><a href="#覆盖技术" class="headerlink" title="覆盖技术"></a>覆盖技术</h3><p>把程序分为必要部分和不必要部分，必要部分在内存中常驻，不必要部分共用同一段内存，相互覆盖<br><img src="https://img-blog.csdnimg.cn/db0de8a27d0140a4a884eb5f9acfef8e.png" srcset="/img/loading.gif" lazyload><br>A为必要部分，其他为不必要部分<br>缺点：需要划分功能模块，并确定模块间的覆盖关系，增加编程复杂度，时间换空间</p>
+<h3 id="交换技术"><a href="#交换技术" class="headerlink" title="交换技术"></a>交换技术</h3><p>以进程为单位，将暂时不能运行的程序放到外存，程序在换入时要重定位<br>交换时机：只有当内存空间不够或者可能不够时换出</p>
+<h3 id="局部性原理"><a href="#局部性原理" class="headerlink" title="局部性原理"></a>局部性原理</h3><p>时间局部性：一条指令两次执行或者一个数据的两次访问都集中在一个较短时期内<br>空间局部性：邻近的指令和数据集中在一个较小区域内<br>分支局部性：一条跳转指令的两次执行，很可能跳到相同的内存位置，比如循环，重复跳到循环第一句</p>
+<h3 id="虚拟存储的基本概念"><a href="#虚拟存储的基本概念" class="headerlink" title="虚拟存储的基本概念"></a>虚拟存储的基本概念</h3><p>思路：将不常用的部分内存块暂存到外存<br>原理：装载程序时，只将当前指令执行需要的部分页面或段装在内存内。如果指令执行中需要的指令或数据不在内存（缺页或者缺段），处理器通知操作系统将对应的页面或段调入内存。操作系统将内存中暂时不用的页面或段保存到外存。<br>实现方式：虚拟页式存储、虚拟段式存储<br>特征：不连续性，物理内存分配非连续，虚拟地址空间使用非连续。大用户空间，提供给用户的虚拟内存可大于实际的物理内存。部分交换，虚拟存储只对部分虚拟地址空间进行交换</p>
+<h3 id="虚拟页式存储地址转换"><a href="#虚拟页式存储地址转换" class="headerlink" title="虚拟页式存储地址转换"></a>虚拟页式存储地址转换</h3><p><strong>地址转换</strong>和页式存储的地址转换一样</p>
+<h3 id="页表项结构"><a href="#页表项结构" class="headerlink" title="页表项结构"></a>页表项结构</h3><p>下面是一级页表，参考一下，其他页表内容差不多<br><img src="https://img-blog.csdnimg.cn/40778bb0381744e4b413bda658a3cf3c.png" srcset="/img/loading.gif" lazyload><br>驻留位：表示该页是否在内存，1表示在，0表示在改页外存，访问该页时将导致缺页异常<br>修改位：回收该物理页面时，据此判断是否要把它的内容写回外存<br>访问位：表示该页面是否被访问过（读或写）<br>保护位：表示该页的允许访问方式（只读、可读写、可执行等）</p>
+<h3 id="缺页异常"><a href="#缺页异常" class="headerlink" title="缺页异常"></a>缺页异常</h3><p>CPU读取一条指令，会去找这条指令所对应的页表项，如果这一项是无效的，会发生缺页异常，缺页异常服务例程执行。</p>
+<p>缺页异常服务例程在外存中找对应那一页在哪里，读入到内存的空闲地方（空闲页帧），然后修改页表项，最后重新执行这条指令。如果没有空闲页帧，把不常用的写出去。它们在物理内存里，要先根据物理页帧f找到逻辑页q，如果逻辑页q被修改过，则把它写回外存，修改q页表项驻留位为0，将需要访问的页p装入到物理页面f，修改p页表项驻留位为1，物理帧号为f。重新执行产生缺页的指令。实际ucore的源代码实现起来会复杂很多。</p>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/OperatingSystem/" class="category-chain-item">OperatingSystem</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/posts/2a444366.html" title="大一下的暑假">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">大一下的暑假</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/posts/e4dc8931.html" title="CTFWiki_PWN_LinuxPlatform_UserMode_Exploitation_StackOverflow_x86">
+                        <span class="hidden-mobile">CTFWiki_PWN_LinuxPlatform_UserMode_Exploitation_StackOverflow_x86</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

